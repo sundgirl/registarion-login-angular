@@ -1,0 +1,14 @@
+.wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -70%);
+  padding: 10px;
+  margin: 0 auto;
+  background-color:#f6fced;
+  box-shadow: 4px 4px 10px 0px;
+}
+
+.link {
+  margin-left: 15px;
+}

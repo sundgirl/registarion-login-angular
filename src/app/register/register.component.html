@@ -1,0 +1,28 @@
+<div class="wrapper col-lg-4 col-sm-6 col-8"><h2>Register</h2>
+  <form [formGroup]='registerForm' (ngSubmit)='submit()'>
+    <div>
+      <div class="form-group">
+        <label>Username</label>
+        <input class="form-control" type="text" formControlName='username'>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-control" type="password" formControlName='password'>
+      </div>
+      <div class="form-group">
+          <label>Confirm password</label>
+          <input class="form-control" type="password" formControlName='confPassword'>
+        </div>
+      <div>       
+        <button class="btn btn-primary" [disabled]="registerForm.invalid">Register</button>
+        <a routerLink="/login" class="link">Login</a>
+      </div>
+    </div>
+    <div class="alert alert-danger" 
+         *ngIf="registerForm.controls['password'].touched && 
+                registerForm.controls['confPassword'].touched && 
+                registerForm.controls['password'].value!=registerForm.controls['confPassword'].value">
+    Password not verified
+  </div>
+  </form>
+</div>
