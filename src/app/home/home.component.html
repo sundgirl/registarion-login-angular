@@ -1,7 +1,6 @@
-<h1>Hello, {{username}}</h1>
-<a routerLink="/login" (click)='logout()'>Log out</a>
-<!-- next to do -->
 <div class="col-6">
+<h1>Hello, {{user.username}}</h1>
+<a routerLink="/login" (click)='logout()'>Log out</a>
   <div class="form-group">
     <label>Add new task</label>
     <input type="text" class="form-control" [(ngModel)]="value">
@@ -9,7 +8,13 @@
   <div class="form-group">
     <button class="btn btn-primary" (click)='addTask()'>Add</button>
   </div> 
-  <ul *ngFor="let item of items">
-    <li>{{item}}</li>
+  <ul *ngFor="let item of items; let i = index">
+    <li>
+      <div class="task-block">
+        <p>{{item}}</p>
+        <a href="#" (click)="deleteTask(i)">Delete</a>
+        
+      </div>
+    </li>
   </ul>
 </div>

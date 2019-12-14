@@ -13,7 +13,8 @@ export class RegisterComponent implements OnInit {
     username: new FormControl('', Validators.required),
     email: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required),
-    confPassword: new FormControl('', Validators.required)
+    confPassword: new FormControl('', Validators.required),
+    tasks: new FormControl('')
   });
   constructor(
         private router: Router,
@@ -24,6 +25,7 @@ export class RegisterComponent implements OnInit {
   }
 
   submit() {
+    this.registerForm.value.tasks = this.registerForm.value.tasks.split('');
     if (!this.registerForm.invalid) {
       this.userService.register(this.registerForm.value)
         .subscribe(() => this.router.navigate(['/login']));

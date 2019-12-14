@@ -9,9 +9,13 @@ import { UserService } from '../services/user.service';
 export class HomeComponent implements OnInit {
   user: any;
   userId: any;
+  userTasks: any;
   value: any;
   items: any;
   updateTask: any;
+  currentUser: any;
+  newObj: any;
+  arr: any;
   constructor(
     private authService: AuthenticationService,
     private userService: UserService
@@ -19,7 +23,10 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
    this.user =  this.authService.currentUserValue;
    this.userId = this.authService.currentUserValue.id;
-   this.items = ['dfh'];
+   this.userTasks = this.authService.currentUserValue.tasks;
+   this.currentUser = localStorage.getItem('currentUser');
+   this.newObj = JSON.parse(this.currentUser);
+   this.items = this.newObj.tasks;
   }
 
   logout() {
@@ -28,6 +35,17 @@ export class HomeComponent implements OnInit {
 
   addTask() {
     this.items = [...this.items, this.value];
-    this.userService.update(this.user).subscribe(() => console.log(this.user));
+    this.setNewValue();
+    this.userService.updateUser(this.newObj);
+  }
+
+  deleteTask(index) {
+    this.items = this.items.filter((el, idx) => idx !== index);
+    this.setNewValue();
+  }
+
+  setNewValue() {
+    this.newObj = {...this.newObj, tasks: this.items};
+    localStorage.setItem('currentUser', JSON.stringify(this.newObj));
   }
 }

@@ -19,8 +19,9 @@ export class UserService {
         return this.http.post(`/users/register`, user);
     }
 
-    update(user: User) {
-        return this.http.put(`/users/${user.id}`, user);
+    updateUser(user: User) {
+        return this.http.put<any>('/users/update', user)
+            .subscribe(() => console.log('successfull'));
     }
 
     delete(id: number) {

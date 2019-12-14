@@ -26,10 +26,31 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return getUserById();
                 case url.match(/\/users\/\d+$/) && method === 'DELETE':
                     return deleteUser();
+                case url.endsWith('/users/update') && method === 'PUT':
+                    return update();
                 default:
                     return next.handle(request);
             }
         }
+
+        function update() {
+            const {id, userTasks } = body;
+            let user = users.find(x => x.id === id);
+            user = {...users, tasks: userTasks};
+            localStorage.setItem('users', JSON.stringify(users));
+            console.log(user);
+            return ok(users);
+        }
+
+    //     function update() {
+    //         const user = body;
+    //         if (users.find(x => x.id === user.id)) {
+    //            return console.log('asda');
+    //         }
+    //         localStorage.setItem('users', JSON.stringify(users));
+    //         console.log(user);
+    //         return ok(users);
+    //    }
 
         function register() {
             const user = body;
@@ -49,6 +70,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (!user) {
               return error('Username or password is incorrect');
             }
+            console.log(user);
             return ok({
                 id: user.id,
                 username: user.username,
