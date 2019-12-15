@@ -19,9 +19,16 @@ export class UserService {
         return this.http.post(`/users/register`, user);
     }
 
-    updateUser(user: User) {
-        return this.http.put<any>('/users/update', user)
-            .subscribe(() => console.log('successfull'));
+    updateUser(id: number, userTask: string) {
+        const body = {id, userTask};
+        return this.http.put<any>('/users/update', body)
+            .subscribe(() => console.log('successfull update'));
+    }
+
+    deleteTask(id: number, userTask: string) {
+        const body = {id, userTask};
+        return this.http.put<any>(`/task/${id}`, body)
+            .subscribe(() => console.log('successfull delete'));
     }
 
     delete(id: number) {

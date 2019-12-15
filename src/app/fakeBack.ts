@@ -22,35 +22,38 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return authenticate();
                 case url.endsWith('/users') && method === 'GET':
                     return getUsers();
-                case url.match(/\/users\/\d+$/) && method === 'GET':
-                    return getUserById();
-                case url.match(/\/users\/\d+$/) && method === 'DELETE':
-                    return deleteUser();
+                // case url.match(/\/users\/\d+$/) && method === 'POST':
+                //     return assignTo();
+                // case url.match(/\/users\/\d+$/) && method === 'GET':
+                //     return getUserById();
+                // case url.match(/\/users\/\d+$/) && method === 'DELETE':
+                //     return deleteUser();
                 case url.endsWith('/users/update') && method === 'PUT':
                     return update();
+                case url.match(/\/task\/\d+$/) && method === 'PUT':
+                    return deleteTask();
                 default:
                     return next.handle(request);
             }
         }
 
         function update() {
-            const {id, userTasks } = body;
-            let user = users.find(x => x.id === id);
-            user = {...users, tasks: userTasks};
+            const { id, userTask } = body;
+            let user = users.find(u => u.id === id);
+            user.tasks = [...user.tasks, userTask];
+            user = {...user, tasks: user.tasks};
             localStorage.setItem('users', JSON.stringify(users));
-            console.log(user);
-            return ok(users);
+            return ok();
         }
 
-    //     function update() {
-    //         const user = body;
-    //         if (users.find(x => x.id === user.id)) {
-    //            return console.log('asda');
-    //         }
-    //         localStorage.setItem('users', JSON.stringify(users));
-    //         console.log(user);
-    //         return ok(users);
-    //    }
+        function deleteTask() {
+            const { id, userTask } = body;
+            let user = users.find(u => u.id === id);
+            user.tasks = userTask;
+            user = {...user, tasks: user.tasks};
+            localStorage.setItem('users', JSON.stringify(users));
+            return ok();
+        }
 
         function register() {
             const user = body;
@@ -79,45 +82,46 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             });
         }
 
+
         function getUsers() {
             return ok(users);
         }
 
-        function getUserById() {
-            const user = users.find(x => x.id === idFromUrl());
-            return ok(user);
-        }
+        // function getUserById() {
+        //     const user = users.find(x => x.id === idFromUrl());
+        //     return ok(user);
+        // }
 
-        function deleteUser() {
-            if (!isLoggedIn()) {
-              return unauthorized();
-            }
+        // function deleteUser() {
+        //     if (!isLoggedIn()) {
+        //       return unauthorized();
+        //     }
 
-            users = users.filter(x => x.id !== idFromUrl());
-            localStorage.setItem('users', JSON.stringify(users));
-            return ok();
-        }
+        //     users = users.filter(x => x.id !== idFromUrl());
+        //     localStorage.setItem('users', JSON.stringify(users));
+        //     return ok();
+        // }
 
         function ok(body?) {
             return of(new HttpResponse({ status: 200, body }));
         }
 
-        function unauthorized() {
-            return throwError({ status: 401, error: { message: 'Unauthorised' } });
-        }
+        // function unauthorized() {
+        //     return throwError({ status: 401, error: { message: 'Unauthorised' } });
+        // }
 
         function error(message) {
             return throwError({ error: { message } });
         }
 
-        function isLoggedIn() {
-            return headers.get('Authorization') === 'Bearer fake-jwt-token';
-        }
+        // function isLoggedIn() {
+        //     return headers.get('Authorization') === 'Bearer fake-jwt-token';
+        // }
 
-        function idFromUrl() {
-            const urlParts = url.split('/');
-            return parseInt(urlParts[urlParts.length - 1]);
-        }
+        // function idFromUrl() {
+        //     const urlParts = url.split('/');
+        //     return parseInt(urlParts[urlParts.length - 1]);
+        // }
     }
 }
 
