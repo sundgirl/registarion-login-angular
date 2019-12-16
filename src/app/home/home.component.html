@@ -1,22 +1,29 @@
-<div class="col-6">
-<h1>Hello, {{user.username}}</h1>
-<a routerLink="/login" (click)='logout()'>Log out</a>
+<nav class="navigation">
+  <h1>Hello, {{user.username}}</h1>
+  <a routerLink="/login" (click)='logout()'>Log out</a>
+</nav>
+<div class="col-6 col-lg-3 mx-auto">
   <div class="form-group">
     <label>Add new task</label>
     <input type="text" class="form-control" [(ngModel)]="value">
   </div>
   <div class="form-group">
-    <button class="btn btn-primary" (click)='addTask()'>Add</button>
+    <button class="btn btn-primary" (click)='setTask()'>Add</button>
   </div> 
   <ul *ngFor="let item of items; let i = index">
     <li>
       <div class="task-block">
-        <p>{{item}}</p>
-        <a href="#" (click)="deleteTask(i)">Delete</a>
-        <label>Share to</label>
-        <select>
-          <option *ngFor="let user of users; let i = index" [value]='user.email'>{{user.username}}</option>
-        </select>
+        <div class="text">Author: {{item.username}}</div>
+        <div class="text">Content: {{item.content}}</div>
+        <div class="task-block-options">
+          <button class="btn btn-primary" (click)="updateTaskFun(i)">Update</button>
+          <label>Share to</label>
+          <select [(ngModel)]="selectedOption">
+            <option *ngFor="let user of users" [value]="user.id" >{{user.username}}</option>
+          </select>
+          <button class="btn btn-primary" (click)="share(i)">Share</button>
+          <button class="btn btn-danger" (click)="deleteTask(i)">Delete</button>
+        </div>
       </div>
     </li>
   </ul>

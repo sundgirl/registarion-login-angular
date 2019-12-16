@@ -28,6 +28,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 //     return getUserById();
                 // case url.match(/\/users\/\d+$/) && method === 'DELETE':
                 //     return deleteUser();
+                case url.endsWith('/users/add') && method === 'PUT':
+                    return add();
                 case url.endsWith('/users/update') && method === 'PUT':
                     return update();
                 case url.match(/\/task\/\d+$/) && method === 'PUT':
@@ -37,11 +39,22 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             }
         }
 
-        function update() {
-            const { id, userTask } = body;
+        function add() {
+            const { id, userTask, assignToUser } = body;
             let user = users.find(u => u.id === id);
-            user.tasks = [...user.tasks, userTask];
+            const userTaskId = user.tasks.length ? Math.max(...user.tasks.map(x => x.id)) + 1 : 1;
+            const taskObj = {id: userTaskId, content: userTask, assignTo: assignToUser, assignFrom: user.id};
+            user.tasks = [...user.tasks, taskObj];
             user = {...user, tasks: user.tasks};
+            localStorage.setItem('users', JSON.stringify(users));
+            return ok();
+        }
+
+        function update() {
+            const { id, index, userTaskId, userTask } = body;
+            const user = users.find(u => u.id === id);
+            const taskObj = {id: userTaskId, content: userTask, assignTo: user.assignTo, assignFrom: user.id};
+            user.tasks.splice(index, 1, taskObj);
             localStorage.setItem('users', JSON.stringify(users));
             return ok();
         }
@@ -73,7 +86,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (!user) {
               return error('Username or password is incorrect');
             }
-            console.log(user);
             return ok({
                 id: user.id,
                 username: user.username,
