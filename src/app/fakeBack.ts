@@ -32,6 +32,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return add();
                 case url.endsWith('/users/update') && method === 'PUT':
                     return update();
+                case url.endsWith('/users/assign') && method === 'PUT':
+                        return assignTo();
                 case url.match(/\/task\/\d+$/) && method === 'PUT':
                     return deleteTask();
                 default:
@@ -40,10 +42,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
 
         function add() {
-            const { id, userTask, assignToUser } = body;
-            let user = users.find(u => u.id === id);
+            const { currentUser, userTask, assignToUser } = body;
+            let user = users.find(u => u.id === currentUser.id);
             const userTaskId = user.tasks.length ? Math.max(...user.tasks.map(x => x.id)) + 1 : 1;
-            const taskObj = {id: userTaskId, content: userTask, assignTo: assignToUser, assignFrom: user.id};
+            const taskObj = {id: userTaskId, content: userTask, assignTo: assignToUser, assignFrom: currentUser};
             user.tasks = [...user.tasks, taskObj];
             user = {...user, tasks: user.tasks};
             localStorage.setItem('users', JSON.stringify(users));
@@ -51,10 +53,20 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
 
         function update() {
-            const { id, index, userTaskId, userTask } = body;
-            const user = users.find(u => u.id === id);
-            const taskObj = {id: userTaskId, content: userTask, assignTo: user.assignTo, assignFrom: user.id};
+            const { currentUser, index, userTaskId, userTask } = body;
+            const user = users.find(u => u.id === currentUser.id);
+            const taskObj = {id: userTaskId, content: userTask, assignTo: user.tasks.assignTo, assignFrom: user.tasks.assignFrom};
             user.tasks.splice(index, 1, taskObj);
+            localStorage.setItem('users', JSON.stringify(users));
+            return ok();
+        }
+
+        function assignTo() {
+            const { currentUser, task, assignedUserId } = body;
+            const user = users.find(u => u.id == assignedUserId);
+            const taskId = user.tasks.length ? Math.max(...user.tasks.map(x => x.id)) + 1 : 1;
+            const taskObj = {id: taskId, content: task.content, assignTo: '', assignFrom: currentUser };
+            user.tasks = [...user.tasks, taskObj];
             localStorage.setItem('users', JSON.stringify(users));
             return ok();
         }

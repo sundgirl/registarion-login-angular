@@ -1,3 +1,5 @@
+<div class="alert alert-danger position-fixed message" *ngIf='error'>{{message}}</div>
+<div class="alert alert-success position-fixed message" *ngIf='success'>{{message}}</div>
 <nav class="navigation">
   <h1>Hello, {{user.username}}</h1>
   <a routerLink="/login" (click)='logout()'>Log out</a>
@@ -13,15 +15,16 @@
   <ul *ngFor="let item of items; let i = index">
     <li>
       <div class="task-block">
-        <div class="text">Author: {{item.username}}</div>
+        <div class="text">Author: {{item.assignFrom.username}}</div>
         <div class="text">Content: {{item.content}}</div>
         <div class="task-block-options">
           <button class="btn btn-primary" (click)="updateTaskFun(i)">Update</button>
-          <label>Share to</label>
-          <select [(ngModel)]="selectedOption">
-            <option *ngFor="let user of users" [value]="user.id" >{{user.username}}</option>
+          <label>Share via email</label>
+          <select (change)="selectOption($event)">
+            <option disabled value="">Select email:</option>
+            <option *ngFor="let user of users" value='{{user.id}}' >{{user.email}}</option>
           </select>
-          <button class="btn btn-primary" (click)="share(i)">Share</button>
+          <button class="btn btn-primary" (click)="assignToUser(i)">Share</button>
           <button class="btn btn-danger" (click)="deleteTask(i)">Delete</button>
         </div>
       </div>

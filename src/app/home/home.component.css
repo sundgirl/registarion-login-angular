@@ -27,3 +27,7 @@ ul {
 .task-block-options button {
   margin: 10px 0;
 }
+
+.message {
+  z-index: 1;
+}

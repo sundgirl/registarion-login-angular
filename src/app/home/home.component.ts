@@ -25,6 +25,9 @@ export class HomeComponent implements OnInit {
   assignFrom: number;
   username: string;
   selectedIndex: number;
+  error: boolean;
+  success: boolean;
+  message: string;
 
   constructor(
     private authService: AuthenticationService,
@@ -40,6 +43,7 @@ export class HomeComponent implements OnInit {
    this.currentUser = localStorage.getItem('currentUser');
    this.items = this.getAllTasks();
    this.selectedIndex = -1;
+   console.log(this.user);
   }
 
   private getAllTasks() {
@@ -59,6 +63,7 @@ export class HomeComponent implements OnInit {
   }
 
   public setTask(): void {
+    this.clearMessage();
     const selectedTask = this.getSelectedTasks(this.selectedIndex);
     if (this.selectedIndex === -1) {
       this.addTask();
@@ -71,22 +76,24 @@ export class HomeComponent implements OnInit {
   public addTask(): void {
     this.userTaskId = this.items.length ? Math.max(...this.items.map(x => x.id)) + 1 : 1;
     this.items = [...this.items, {id: this.userTaskId, content: this.value,
-                                  assignTo: this.assignTo, assignFrom: this.assignFrom}];
+                                  assignTo: '', assignFrom: this.user}];
     this.setNewValue();
-    this.tasksService.addTask(this.currentUserId, this.value, this.assignTo);
+    this.tasksService.addTask(this.user, this.value, this.assignTo);
     this.reload();
   }
 
   public editTask(selectedTask): void {
+    this.clearMessage();
     const obj = {id: selectedTask.id, content: this.value,
-                assignTo: this.assignTo, assignFrom: this.assignFrom};
+                assignTo: selectedTask.assignTo, assignFrom: selectedTask.assignFrom};
     this.items.splice(this.selectedIndex, 1, obj);
     this.setNewValue();
-    this.tasksService.updateTask(this.currentUserId, this.selectedIndex, selectedTask.id, this.value);
+    this.tasksService.updateTask(this.user, this.selectedIndex, selectedTask.id, this.value);
     this.reload();
   }
 
   public deleteTask(index: number): void {
+    this.clearMessage();
     this.items = this.items.filter((el, idx) => idx !== index);
     this.tasksService.deleteTask(this.currentUserId, this.items);
     this.setNewValue();
@@ -109,6 +116,41 @@ export class HomeComponent implements OnInit {
     this.value = selectedTask.content;
   }
 
+  public selectOption(event) {
+    this.selectedOption = event.target.value;
+    return this.selectedOption;
+  }
+
+  public assignToUser(index) {
+    const task = this.getSelectedTasks(index);
+    if (this.selectedOption){
+      this.error = false;
+      this.success = true;
+      this.tasksService.assignTo(this.user, task, this.selectedOption);
+      this.alertSuccessMessage('Task was shared successfuly');
+    } else {
+      this.alertErrorMessage('Select email');
+    }
+  }
+
+  private alertErrorMessage(message) {
+    this.error = true;
+    this.success = false;
+    this.message = message;
+    return message;
+  }
+
+  private alertSuccessMessage(message) {
+    this.error = false;
+    this.success = true;
+    this.message = message;
+    return message;
+  }
+
+  private clearMessage() {
+    this.error = false;
+    this.success = false;
+  }
   public reload(): void {
     window.location.reload();
   }
