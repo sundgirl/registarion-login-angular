@@ -12,3 +12,6 @@
 .link {
   margin-left: 15px;
 }
+.message {
+  z-index: 1;
+}
