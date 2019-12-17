@@ -43,7 +43,6 @@ export class HomeComponent implements OnInit {
    this.currentUser = localStorage.getItem('currentUser');
    this.items = this.getAllTasks();
    this.selectedIndex = -1;
-   console.log(this.user);
   }
 
   private getAllTasks() {
@@ -97,6 +96,7 @@ export class HomeComponent implements OnInit {
     this.items = this.items.filter((el, idx) => idx !== index);
     this.tasksService.deleteTask(this.currentUserId, this.items);
     this.setNewValue();
+    this.reload();
   }
 
   private setNewValue(): void {
@@ -123,11 +123,17 @@ export class HomeComponent implements OnInit {
 
   public assignToUser(index) {
     const task = this.getSelectedTasks(index);
-    if (this.selectedOption){
-      this.error = false;
-      this.success = true;
-      this.tasksService.assignTo(this.user, task, this.selectedOption);
-      this.alertSuccessMessage('Task was shared successfuly');
+    if (this.selectedOption) {
+      if (this.selectedOption != this.currentUserId) {
+        this.error = false;
+        this.success = true;
+        this.tasksService.assignTo(this.user, task, this.selectedOption);
+        this.alertSuccessMessage('Task was shared successfuly');
+      } else {
+        this.success = false;
+        this.error = true;
+        this.alertErrorMessage('You can\'t share task yourself');
+      }
     } else {
       this.alertErrorMessage('Select email');
     }

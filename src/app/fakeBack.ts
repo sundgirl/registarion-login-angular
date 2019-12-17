@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
+import { delay, mergeMap } from 'rxjs/operators';
 let users = JSON.parse(localStorage.getItem('users')) || [];
 
 @Injectable()
@@ -9,7 +9,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const { url, method, headers, body } = request;
 
-        // wrap in delayed observable to simulate server api call
         return of(null)
             .pipe(mergeMap(handleRoute))
             .pipe(delay(500));
@@ -22,18 +21,12 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return authenticate();
                 case url.endsWith('/users') && method === 'GET':
                     return getUsers();
-                // case url.match(/\/users\/\d+$/) && method === 'POST':
-                //     return assignTo();
-                // case url.match(/\/users\/\d+$/) && method === 'GET':
-                //     return getUserById();
-                // case url.match(/\/users\/\d+$/) && method === 'DELETE':
-                //     return deleteUser();
                 case url.endsWith('/users/add') && method === 'PUT':
                     return add();
                 case url.endsWith('/users/update') && method === 'PUT':
                     return update();
                 case url.endsWith('/users/assign') && method === 'PUT':
-                        return assignTo();
+                    return assignTo();
                 case url.match(/\/task\/\d+$/) && method === 'PUT':
                     return deleteTask();
                 default:
@@ -65,7 +58,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             const { currentUser, task, assignedUserId } = body;
             const user = users.find(u => u.id == assignedUserId);
             const taskId = user.tasks.length ? Math.max(...user.tasks.map(x => x.id)) + 1 : 1;
-            const taskObj = {id: taskId, content: task.content, assignTo: '', assignFrom: currentUser };
+            const taskObj = {id: taskId, content: task.content, assignTo: assignedUserId, assignFrom: currentUser };
             user.tasks = [...user.tasks, taskObj];
             localStorage.setItem('users', JSON.stringify(users));
             return ok();
@@ -82,7 +75,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         function register() {
             const user = body;
-
             if (users.find(x => x.username === user.username)) {
                 return error('Username "' + user.username + '" is already taken');
             }
@@ -111,41 +103,13 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             return ok(users);
         }
 
-        // function getUserById() {
-        //     const user = users.find(x => x.id === idFromUrl());
-        //     return ok(user);
-        // }
-
-        // function deleteUser() {
-        //     if (!isLoggedIn()) {
-        //       return unauthorized();
-        //     }
-
-        //     users = users.filter(x => x.id !== idFromUrl());
-        //     localStorage.setItem('users', JSON.stringify(users));
-        //     return ok();
-        // }
-
         function ok(body?) {
             return of(new HttpResponse({ status: 200, body }));
         }
 
-        // function unauthorized() {
-        //     return throwError({ status: 401, error: { message: 'Unauthorised' } });
-        // }
-
         function error(message) {
             return throwError({ error: { message } });
         }
-
-        // function isLoggedIn() {
-        //     return headers.get('Authorization') === 'Bearer fake-jwt-token';
-        // }
-
-        // function idFromUrl() {
-        //     const urlParts = url.split('/');
-        //     return parseInt(urlParts[urlParts.length - 1]);
-        // }
     }
 }
 
